@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-module MarkovChains
+module MarkovChains.FirstChain
     (Chain,
      transit,
      MarkovChain,
@@ -209,7 +209,7 @@ speechcap = 50
 
 {-Recommend adding a absolutePath here-}
 memoryname :: FilePath
-memoryname = "chain.mem"
+memoryname = "GenericFileName"
 
 
 
