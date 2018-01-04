@@ -13,13 +13,6 @@ type S = M.Map String [String]
 type Mchain = StateT S IO
 
 
-bindN :: (Monad f) => Int -> (a -> f a) -> a -> f [a]
-bindN 0 bind p = return []
-bindN n bind p = do 
-                      p' <- bind p
-
-                      (:) <$> bind p <*> bindN (n - 1) bind p'
-
 bindWhile :: (Monad f, Eq a) => (a -> Bool) -> (a -> f a) -> a -> f [a]
 bindWhile f bind p = do
                       p' <- bind p
@@ -27,6 +20,14 @@ bindWhile f bind p = do
                       if f p 
                         then (:) <$> bind p <*> bindWhile f bind p'
                         else return []
+
+
+bindWhileMax :: (Monad f, Eq a) => (a -> Bool) -> (a -> f a) -> Int -> a -> f [a]
+bindWhileMax _ _ 0 _ = return []
+bindWhileMax f bind n p = do
+                             p' <- bind p
+                             (:) <$> bind p <*> bindWhileMax f bind (n - 1) p'
+
 
 mappend' :: Maybe String -> Maybe String -> Maybe String
 mappend' (Just a) (Just b) = Just (a ++ " " ++  b)
@@ -68,26 +69,33 @@ bulkLearn = do
                 return $ "Learned up to " ++ word
 
 
+demoBW :: Int -> Maybe String -> Mchain [Maybe String]
+demoBW = bindWhileMax (/= Nothing) outputInc
+
+demoSentenceLength :: IO Int
+demoSentenceLength = R.randomRIO (7, 20)
+
 fromRandomStarter :: Mchain String
 fromRandomStarter = do
                        memory <- get
 
                        let keys = Prelude.map fst $ M.toList memory
                        idx <- liftIO (R.randomRIO (0, length keys - 1))
+                       sl <- liftIO demoSentenceLength
                        let word = Just (keys !! idx)
-                       words <- bindWhile (/= Nothing) outputInc word
+                       words <- demoBW sl word
 
                        return . fromJust $ Prelude.foldl mappend' word words
 
 demoRespondLine :: Mchain String
 demoRespondLine = do
                     word <- listen getLine
-
-                    (word' : words) <- bindWhile (/= Nothing) outputInc (Just word)
+                    
+                    sl <- liftIO demoSentenceLength
+                    (word' : words) <- demoBW sl (Just word)
                     if isNothing word'
                       then fromRandomStarter
                       else return . fromJust $ Prelude.foldl mappend' word' words
-
 
 
 
