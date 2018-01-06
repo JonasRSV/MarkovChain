@@ -17,9 +17,6 @@ import Control.Monad.State
 memoryFileName :: FilePath
 memoryFileName = "/Users/jonval/WARNING/singularity/PATH/.memories/chain.mem"
 
-groupSz :: Int 
-groupSz = 9
-
 makeSureMemoryExistMchain :: IO ()
 makeSureMemoryExistMchain = 
   do
@@ -55,8 +52,8 @@ chainAction ch =
     I.hClose handle'
 
 
-chat :: IO ()
-chat = forever $ chainAction $ demoTalkLineWise groupSz
+chat :: Int -> IO ()
+chat groupSz = forever $ chainAction $ demoTalkLineWise groupSz
 
 
 
@@ -66,9 +63,9 @@ main = do
 
           args <- getArgs
           case args of 
-            [] -> putStr "Learn or Chat & Learn with\n-c to chat linewise\n-l to learn bulk"
-            ("-c":_) -> chat
-            ("-l":_) -> chainAction $ bulkLearnGroups groupSz
+            [] -> putStr "Learn, Chat or Generate with\n{-c GROUP-SIZE} to chat linewise with groups of size GROUP-SIZE\n{-l GROUP-SIZE} to learn groups of size GROUP-SIZE \n{-g G} to generate G Groups"
+            ("-c":gz:_) -> chat (read gz)
+            ("-l":gz:_) -> chainAction $ bulkLearnGroups (read gz)
             ("-g":i:_) -> chainAction $ demoGetRandomState >> demoGenerateNGroups (read i)
 
 

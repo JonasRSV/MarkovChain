@@ -68,8 +68,9 @@ bulkLearnGroups groupsz = do
                 word <- listenForGroups groupsz getContents
                 return . fromJust $ (++) <$> pure "Learned up to " <*> word 
 
+{-Length in Groups-}
 demoSentenceLength :: IO Int
-demoSentenceLength = R.randomRIO (7, 20)
+demoSentenceLength = R.randomRIO (1, 5)
 
 demoGenerateNGroups :: Int -> Mchain String
 demoGenerateNGroups groups = do 
