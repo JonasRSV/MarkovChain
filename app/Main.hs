@@ -12,30 +12,13 @@ import Control.Monad
 import Control.Monad.State
 
 
-{-haveAchat :: IO ()-}
-{-haveAchat = do -}
-               {-file <- readFile memoryname -}
-               {-transit converse (read file)-}
-               {-return ()-}
-
-
-
-{-makeSureMemoryExist :: IO ()-}
-{-makeSureMemoryExist = do-}
-                       {-fe <- D.doesFileExist memoryFileName-}
-
-
-                       {-unless fe $ do-}
-                                  {-print "Creating File"-}
-                                  {-handle <- I.openFile memoryname I.WriteMode-}
-
-                                  {-I.hPrint handle (([], M.empty) :: ([String], M.Map String [String]))-}
-                                  {-I.hClose handle-}
-
 
 {-Don't judge the filepath-}
 memoryFileName :: FilePath
 memoryFileName = "/Users/jonval/WARNING/singularity/PATH/.memories/chain.mem"
+
+groupSz :: Int 
+groupSz = 9
 
 makeSureMemoryExistMchain :: IO ()
 makeSureMemoryExistMchain = 
@@ -52,13 +35,15 @@ makeSureMemoryExistMchain =
 
                   
 
+defaultStart :: M.Map String [String] -> (M.Map String [String], Maybe String)
+defaultStart m = (m, Just "")
 
 chainAction :: Mchain String ->  IO ()
 chainAction ch =
   do
     handle <- I.openFile memoryFileName I.ReadMode
     state <- I.hGetContents handle
-    (answer, state') <- runStateT ch (read state)
+    (answer, (state', _)) <- runStateT ch $ defaultStart (read state)
     putStrLn answer
 
     {-For some Reason the previous handle is closed by running the previous IO action-}
@@ -71,7 +56,7 @@ chainAction ch =
 
 
 chat :: IO ()
-chat = forever $ chainAction demoRespondLine
+chat = forever $ chainAction $ demoTalkLineWise groupSz
 
 
 
@@ -83,6 +68,7 @@ main = do
           case args of 
             [] -> putStr "Learn or Chat & Learn with\n-c to chat linewise\n-l to learn bulk"
             ("-c":_) -> chat
-            ("-l":_) -> chainAction bulkLearn
+            ("-l":_) -> chainAction $ bulkLearnGroups groupSz
+            ("-g":i:_) -> chainAction $ demoGetRandomState >> demoGenerateNGroups (read i)
 
 
