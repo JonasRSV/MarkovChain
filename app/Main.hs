@@ -17,20 +17,22 @@ import Control.Monad.State
 memoryFileName :: FilePath
 memoryFileName = "/Users/jonval/WARNING/singularity/PATH/.memories/chain.mem"
 
-makeSureMemoryExistMchain :: IO ()
-makeSureMemoryExistMchain = 
-  do
-     fe <- D.doesFileExist memoryFileName
-
-
-     unless fe $ do
+defaultMemory :: IO ()
+defaultMemory = do
                 print "Creating File"
                 handle <- I.openFile memoryFileName I.WriteMode
 
                 I.hPrint handle (M.singleton "Awesome" ["Bot"] :: M.Map String [String])
                 I.hClose handle
 
-                  
+
+
+makeSureMemoryExistMchain :: IO ()
+makeSureMemoryExistMchain = 
+  do
+     fe <- D.doesFileExist memoryFileName
+     unless fe defaultMemory                 
+
 
 defaultStart :: M.Map String [String] -> (M.Map String [String], Maybe String)
 defaultStart m = (m, Just "")
@@ -63,9 +65,10 @@ main = do
 
           args <- getArgs
           case args of 
-            [] -> putStr "Learn, Chat or Generate with\n{-c GROUP-SIZE} to chat linewise with groups of size GROUP-SIZE\n{-l GROUP-SIZE} to learn groups of size GROUP-SIZE \n{-g G} to generate G Groups"
+            [] -> putStr "Learn, Chat or Generate with\n{-c GROUP-SIZE} to chat linewise with groups of size GROUP-SIZE\n{-l GROUP-SIZE} to learn groups of size GROUP-SIZE \n{-g G} to generate G Groups\n{-d} Restore Memory to Default"
             ("-c":gz:_) -> chat (read gz)
             ("-l":gz:_) -> chainAction $ bulkLearnGroups (read gz)
             ("-g":i:_) -> chainAction $ demoGetRandomState >> demoGenerateNGroups (read i)
+            ("-d":_) -> defaultMemory >> putStrLn "Restored to Default Memory"
 
 
