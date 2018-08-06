@@ -20,12 +20,12 @@ synopsis:            Short description of your package
 description:         Please see the README on Github at <https://github.com/githubuser/markovChains#readme>
 
 dependencies:
-- base >= 4.7 && < 5,
-  mtl >= 2.2,
-  containers >= 0.5,
-  random >= 1.1,
-  directory >= 1.3,
-  deepseq >= 1.4
+- base >= 4.7 && < 5
+-  mtl >= 2.2
+-  containers >= 0.5
+-  random >= 1.1
+-  directory >= 1.3
+-  deepseq >= 1.4
 
   
 
